@@ -12,9 +12,7 @@
 use crate::relocation::{TrapCode, TrapData};
 use crate::signal::{CallProtError, HandlerData};
 use libc::{c_int, c_void, siginfo_t};
-use nix::sys::signal::{
-    sigaction, SaFlags, SigAction, SigHandler, SigSet, Signal, SIGBUS, SIGFPE, SIGILL, SIGSEGV,
-};
+use nix::sys::signal::{sigaction, SaFlags, SigAction, SigHandler, SigSet, Signal, SIGBUS, SIGFPE, SIGILL, SIGSEGV};
 use std::cell::{Cell, UnsafeCell};
 use std::ptr;
 use std::sync::Once;
@@ -35,16 +33,22 @@ extern "C" {
     fn longjmp(env: *mut c_void, val: c_int) -> !;
 }
 
+static mut SIGFPE_SYS_HANDLER: Option<SigAction> = None;
+static mut SIGILL_SYS_HANDLER: Option<SigAction> = None;
+static mut SIGSEGV_SYS_HANDLER: Option<SigAction> = None;
+static mut SIGBUS_SYS_HANDLER: Option<SigAction> = None;
+
 pub unsafe fn install_sighandler() {
     let sa = SigAction::new(
         SigHandler::SigAction(signal_trap_handler),
         SaFlags::SA_ONSTACK,
         SigSet::empty(),
     );
-    sigaction(SIGFPE, &sa).unwrap();
-    sigaction(SIGILL, &sa).unwrap();
-    sigaction(SIGSEGV, &sa).unwrap();
-    sigaction(SIGBUS, &sa).unwrap();
+
+    SIGFPE_SYS_HANDLER = sigaction(SIGFPE, &sa).ok();
+    SIGILL_SYS_HANDLER = sigaction(SIGILL, &sa).ok();
+    SIGSEGV_SYS_HANDLER = sigaction(SIGSEGV, &sa).ok();
+    SIGBUS_SYS_HANDLER = sigaction(SIGBUS, &sa).ok();
 }
 
 const SETJMP_BUFFER_LEN: usize = 27;
@@ -123,14 +127,48 @@ pub fn call_protected<T>(
 }
 
 /// Unwinds to last protected_call.
-pub unsafe fn do_unwind(signum: i32, siginfo: *const c_void, ucontext: *const c_void) -> ! {
+pub unsafe fn do_unwind(signum: i32, siginfo: *mut c_void, ucontext: *mut c_void) {
     // Since do_unwind is only expected to get called from WebAssembly code which doesn't hold any host resources (locks etc.)
     // itself, accessing TLS here is safe. In case any other code calls this, it often indicates a memory safety bug and you should
     // temporarily disable the signal handlers to debug it.
 
+    // Calls given handler for specified signal.
+    unsafe fn call_signal_handler(sig: Signal, siginfo: *mut c_void, ucontext: *mut c_void, sig_action: &SigAction) {
+        match sig_action.handler() {
+            SigHandler::SigDfl => {
+                sigaction(sig, sig_action).unwrap();
+                return
+            },
+            SigHandler::SigIgn => return,
+            SigHandler::Handler(handler) => handler(sig as _),
+            SigHandler::SigAction(handler) => handler(sig as _, siginfo as _, ucontext),
+        }
+    }
+
     let jmp_buf = SETJMP_BUFFER.with(|buf| buf.get());
     if *jmp_buf == [0; SETJMP_BUFFER_LEN] {
-        ::std::process::abort();
+        let sig = Signal::from_c_int(signum).unwrap_or_else(|_| ::std::process::abort());
+        match sig {
+            // just abort if the previous handler hasn't been set
+            SIGFPE => SIGFPE_SYS_HANDLER.map_or_else(
+                || ::std::process::abort(),
+                |prev_handler| call_signal_handler( SIGFPE as _, siginfo, ucontext, &prev_handler)
+            ),
+            SIGILL => SIGILL_SYS_HANDLER.map_or_else(
+                || ::std::process::abort(),
+                |prev_handler| call_signal_handler( SIGILL as _, siginfo, ucontext, &prev_handler)
+            ),
+            SIGSEGV => SIGSEGV_SYS_HANDLER.map_or_else(
+                || ::std::process::abort(),
+                |prev_handler| call_signal_handler( SIGSEGV as _, siginfo, ucontext, &prev_handler)
+            ),
+            SIGBUS => SIGBUS_SYS_HANDLER.map_or_else(
+                || ::std::process::abort(),
+                |prev_handler| call_signal_handler( SIGBUS as _, siginfo, ucontext, &prev_handler)
+            ),
+            _ => ::std::process::abort(),
+        }
+        return;
     }
 
     CAUGHT_ADDRESSES.with(|cell| cell.set(get_faulting_addr_and_ip(siginfo, ucontext)));
