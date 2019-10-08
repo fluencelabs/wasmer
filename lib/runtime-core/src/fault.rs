@@ -164,13 +164,62 @@ pub unsafe fn catch_unsafe_unwind<R, F: FnOnce() -> R>(
     }
 }
 
-pub unsafe fn begin_unsafe_unwind(e: Box<dyn Any>) -> ! {
+unsafe fn call_signal_handler(sig: Signal, siginfo: *mut siginfo_t, ucontext: *mut c_void, sig_action: &SigAction) {
+    match sig_action.handler() {
+        SigHandler::SigDfl => {
+            sigaction(sig, sig_action).unwrap();
+            return
+        },
+        SigHandler::SigIgn => return,
+        SigHandler::Handler(handler) => handler(sig as _),
+        SigHandler::SigAction(handler) => handler(sig as _, siginfo as _, ucontext),
+    }
+}
+
+pub unsafe fn begin_unsafe_unwind(
+    e: Box<dyn Any>,
+    signum: ::nix::libc::c_int,
+    siginfo: *mut siginfo_t,
+    ucontext: *mut c_void,
+) {
     let unwind = UNWIND.with(|x| x.get());
-    let inner = (*unwind)
-        .as_mut()
-        .expect("not within a catch_unsafe_unwind scope");
-    inner.payload = Some(e);
-    raw::longjmp(&mut inner.jmpbuf as *mut SetJmpBuffer as *mut _, 0xffff);
+    match (*unwind).as_mut() {
+        Some(inner) => {
+            inner.payload = Some(e);
+            raw::longjmp(&mut inner.jmpbuf as *mut SetJmpBuffer as * mut _, 0xffff)
+        },
+        None => {
+            let sig = Signal::from_c_int(signum).unwrap_or_else(|_| ::std::process::abort());
+            match sig {
+                // just abort if the previous handler hasn't been set
+                SIGFPE => SIGFPE_SYS_HANDLER.map_or_else(
+                    || ::std::process::abort(),
+                    |prev_handler| call_signal_handler(SIGFPE as _, siginfo, ucontext, &prev_handler)
+                ),
+                SIGILL => SIGILL_SYS_HANDLER.map_or_else(
+                    || ::std::process::abort(),
+                    |prev_handler| call_signal_handler(SIGILL as _, siginfo, ucontext, &prev_handler)
+                ),
+                SIGSEGV => SIGSEGV_SYS_HANDLER.map_or_else(
+                    || ::std::process::abort(),
+                    |prev_handler| call_signal_handler(SIGSEGV as _, siginfo, ucontext, &prev_handler)
+                ),
+                SIGBUS => SIGBUS_SYS_HANDLER.map_or_else(
+                    || ::std::process::abort(),
+                    |prev_handler| call_signal_handler(SIGBUS as _, siginfo, ucontext, &prev_handler)
+                ),
+                SIGTRAP => SIGTRAP_SYS_HANDLER.map_or_else(
+                    || ::std::process::abort(),
+                    |prev_handler| call_signal_handler(SIGTRAP as _, siginfo, ucontext, &prev_handler)
+                ),
+                SIGINT => SIGINT_SYS_HANDLER.map_or_else(
+                    || ::std::process::abort(),
+                    |prev_handler| call_signal_handler(SIGINT as _, siginfo, ucontext, &prev_handler)
+                ),
+                _ => ::std::process::abort(),
+            }
+        }
+    }
 }
 
 unsafe fn with_breakpoint_map<R, F: FnOnce(Option<&BreakpointMap>) -> R>(f: F) -> R {
@@ -297,7 +346,7 @@ extern "C" fn signal_trap_handler(
         });
 
         if should_unwind {
-            begin_unsafe_unwind(unwind_result);
+            begin_unsafe_unwind(unwind_result, signum, siginfo, ucontext);
         }
     }
 }
@@ -324,24 +373,32 @@ pub fn ensure_sighandler() {
 
 static INSTALL_SIGHANDLER: Once = Once::new();
 
+static mut SIGFPE_SYS_HANDLER: Option<SigAction> = None;
+static mut SIGILL_SYS_HANDLER: Option<SigAction> = None;
+static mut SIGSEGV_SYS_HANDLER: Option<SigAction> = None;
+static mut SIGBUS_SYS_HANDLER: Option<SigAction> = None;
+static mut SIGTRAP_SYS_HANDLER: Option<SigAction> = None;
+static mut SIGINT_SYS_HANDLER: Option<SigAction> = None;
+
 unsafe fn install_sighandler() {
     let sa_trap = SigAction::new(
         SigHandler::SigAction(signal_trap_handler),
         SaFlags::SA_ONSTACK,
         SigSet::empty(),
     );
-    sigaction(SIGFPE, &sa_trap).unwrap();
-    sigaction(SIGILL, &sa_trap).unwrap();
-    sigaction(SIGSEGV, &sa_trap).unwrap();
-    sigaction(SIGBUS, &sa_trap).unwrap();
-    sigaction(SIGTRAP, &sa_trap).unwrap();
+
+    SIGFPE_SYS_HANDLER = sigaction(SIGFPE, &sa_trap).ok();
+    SIGILL_SYS_HANDLER = sigaction(SIGILL, &sa_trap).ok();
+    SIGSEGV_SYS_HANDLER = sigaction(SIGSEGV, &sa_trap).ok();
+    SIGBUS_SYS_HANDLER = sigaction(SIGBUS, &sa_trap).ok();
+    SIGTRAP_SYS_HANDLER =  sigaction(SIGTRAP, &sa_trap).ok();
 
     let sa_interrupt = SigAction::new(
         SigHandler::SigAction(sigint_handler),
         SaFlags::SA_ONSTACK,
         SigSet::empty(),
     );
-    sigaction(SIGINT, &sa_interrupt).unwrap();
+    SIGINT_SYS_HANDLER = sigaction(SIGINT, &sa_interrupt).ok();
 }
 
 pub struct FaultInfo {
