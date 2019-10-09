@@ -20,6 +20,7 @@ thread_local! {
 }
 
 pub unsafe fn trigger_trap() -> ! {
+    println!("protect_linux: trigger_trap");
     begin_unsafe_unwind_unchecked(Box::new(()));
 }
 
@@ -49,5 +50,6 @@ pub fn call_protected<T>(
 }
 
 pub unsafe fn throw(payload: Box<dyn Any>) -> ! {
+    println!("protect_linux: throw");
     begin_unsafe_unwind_unchecked(payload);
 }

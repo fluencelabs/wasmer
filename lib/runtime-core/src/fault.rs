@@ -279,6 +279,7 @@ extern "C" fn signal_trap_handler(
     siginfo: *mut siginfo_t,
     ucontext: *mut c_void,
 ) {
+    println!("fault: signal_trap_handler start");
     unsafe {
         let fault = get_fault_info(siginfo as _, ucontext);
 
@@ -353,6 +354,7 @@ extern "C" fn signal_trap_handler(
         });
 
         if should_unwind {
+            println!("fault: signal_trap_handler begin unwinding");
             begin_unsafe_unwind(unwind_result, signum, siginfo, ucontext);
         }
     }
