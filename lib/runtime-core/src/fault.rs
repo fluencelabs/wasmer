@@ -192,10 +192,12 @@ pub unsafe fn begin_unsafe_unwind(
     let unwind = UNWIND.with(|x| x.get());
     match (*unwind).as_mut() {
         Some(inner) => {
+            println!("begin_unsafe_unwind some");
             inner.payload = Some(e);
             raw::longjmp(&mut inner.jmpbuf as *mut SetJmpBuffer as * mut _, 0xffff)
         },
         None => {
+            println!("begin_unsafe_unwind none, signum is {}", signum);
             let sig = Signal::from_c_int(signum).unwrap_or_else(|_| ::std::process::abort());
             match sig {
                 // just abort if the previous handler hasn't been set
