@@ -176,6 +176,13 @@ unsafe fn call_signal_handler(sig: Signal, siginfo: *mut siginfo_t, ucontext: *m
     }
 }
 
+pub unsafe fn begin_unsafe_unwind_unchecked(e: Box<dyn Any>) -> ! {
+    let unwind = UNWIND.with(|x| x.get());
+    let mut unwind = (*unwind).as_mut().expect("");
+    unwind.payload = Some(e);
+    raw::longjmp(&mut unwind.jmpbuf as *mut SetJmpBuffer as * mut _, 0xFFFF);
+}
+
 pub unsafe fn begin_unsafe_unwind(
     e: Box<dyn Any>,
     signum: ::nix::libc::c_int,

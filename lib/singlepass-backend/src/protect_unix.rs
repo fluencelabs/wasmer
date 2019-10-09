@@ -12,7 +12,7 @@
 use std::any::Any;
 use std::cell::Cell;
 use wasmer_runtime_core::codegen::BreakpointMap;
-use wasmer_runtime_core::fault::{begin_unsafe_unwind, catch_unsafe_unwind, ensure_sighandler};
+use wasmer_runtime_core::fault::{catch_unsafe_unwind, ensure_sighandler, begin_unsafe_unwind_unchecked};
 use wasmer_runtime_core::typed_func::WasmTrapInfo;
 
 thread_local! {
@@ -20,7 +20,7 @@ thread_local! {
 }
 
 pub unsafe fn trigger_trap() -> ! {
-    begin_unsafe_unwind(Box::new(()));
+    begin_unsafe_unwind_unchecked(Box::new(()));
 }
 
 pub enum CallProtError {
@@ -49,5 +49,5 @@ pub fn call_protected<T>(
 }
 
 pub unsafe fn throw(payload: Box<dyn Any>) -> ! {
-    begin_unsafe_unwind(payload);
+    begin_unsafe_unwind_unchecked(payload);
 }
