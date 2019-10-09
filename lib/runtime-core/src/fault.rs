@@ -167,12 +167,22 @@ pub unsafe fn catch_unsafe_unwind<R, F: FnOnce() -> R>(
 unsafe fn call_signal_handler(sig: Signal, siginfo: *mut siginfo_t, ucontext: *mut c_void, sig_action: &SigAction) {
     match sig_action.handler() {
         SigHandler::SigDfl => {
+            println!("default handler");
             sigaction(sig, sig_action).unwrap();
             return
         },
-        SigHandler::SigIgn => return,
-        SigHandler::Handler(handler) => handler(sig as _),
-        SigHandler::SigAction(handler) => handler(sig as _, siginfo as _, ucontext),
+        SigHandler::SigIgn => {
+            println!("ignore handler");
+            return
+        },
+        SigHandler::Handler(handler) => {
+            println!("handler");
+            handler(sig as _)
+        },
+        SigHandler::SigAction(handler) => {
+            println!("signal action handler");
+            handler(sig as _, siginfo as _, ucontext)
+        },
     }
 }
 
