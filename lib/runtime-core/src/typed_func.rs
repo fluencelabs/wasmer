@@ -259,7 +259,8 @@ where
     Rets: WasmTypeList,
 {
     // TODO: document the invariants `unsafe` requires here
-    pub(crate) unsafe fn from_raw_parts(
+    /// Create Func from raw pointers.
+    pub unsafe fn from_raw_parts(
         inner: Wasm,
         func: NonNull<vm::Func>,
         func_env: Option<NonNull<vm::FuncEnv>>,
