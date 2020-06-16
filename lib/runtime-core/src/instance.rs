@@ -59,7 +59,8 @@ pub struct Instance {
     /// The exports of this instance.
     pub exports: Exports,
     #[allow(dead_code)]
-    import_object: ImportObject,
+    /// Import object of the Instance.
+    pub import_object: ImportObject,
 }
 
 impl Instance {

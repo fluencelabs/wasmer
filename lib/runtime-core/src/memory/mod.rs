@@ -149,7 +149,8 @@ impl Memory {
         unsafe { MemoryView::new(base as _, length as u32) }
     }
 
-    pub(crate) fn vm_local_memory(&self) -> *mut vm::LocalMemory {
+    /// Returns the module local memory.
+    pub fn vm_local_memory(&self) -> *mut vm::LocalMemory {
         match &self.variant {
             MemoryVariant::Unshared(unshared_mem) => unshared_mem.vm_local_memory(),
             MemoryVariant::Shared(shared_mem) => shared_mem.vm_local_memory(),
