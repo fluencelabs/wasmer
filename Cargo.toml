@@ -35,9 +35,9 @@ wasmer-runtime-core = { path = "lib/runtime-core", package = "wasmer-runtime-cor
 wasmer-kernel-loader = { path = "lib/kernel-loader", optional = true }
 
 # Backends
-wasmer-singlepass-backend = { path = "lib/singlepass-backend", optional = true }
-wasmer-clif-backend = { path = "lib/clif-backend", optional = true }
-wasmer-llvm-backend = { path = "lib/llvm-backend", optional = true }
+wasmer-singlepass-backend = { path = "lib/singlepass-backend", package = "wasmer-singlepass-backend-fl", optional = true }
+wasmer-clif-backend = { path = "lib/clif-backend", package = "wasmer-clif-backend-fl", optional = true }
+wasmer-llvm-backend = { path = "lib/llvm-backend", package = "wasmer-llvm-backend-fl", optional = true }
 
 # Frontends
 wasmer-emscripten = { path = "lib/emscripten" }

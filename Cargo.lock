@@ -2771,10 +2771,10 @@ name = "wasmer"
 version = "0.17.0"
 dependencies = [
  "serde",
- "wasmer-clif-backend",
- "wasmer-llvm-backend",
+ "wasmer-clif-backend-fl",
+ "wasmer-llvm-backend-fl",
  "wasmer-runtime-core-fl",
- "wasmer-singlepass-backend",
+ "wasmer-singlepass-backend-fl",
 ]
 
 [[package]]
@@ -2802,21 +2802,21 @@ dependencies = [
  "typetag",
  "wabt",
  "wasmer",
- "wasmer-clif-backend",
+ "wasmer-clif-backend-fl",
  "wasmer-emscripten",
  "wasmer-kernel-loader",
- "wasmer-llvm-backend",
+ "wasmer-llvm-backend-fl",
  "wasmer-middleware-common",
  "wasmer-runtime-core-fl",
  "wasmer-runtime-fl",
- "wasmer-singlepass-backend",
+ "wasmer-singlepass-backend-fl",
  "wasmer-wasi-experimental-io-devices",
  "wasmer-wasi-fl",
  "wasmer-wast",
 ]
 
 [[package]]
-name = "wasmer-clif-backend"
+name = "wasmer-clif-backend-fl"
 version = "0.17.0"
 dependencies = [
  "byteorder",
@@ -2888,7 +2888,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "wasmer-llvm-backend"
+name = "wasmer-llvm-backend-fl"
 version = "0.17.0"
 dependencies = [
  "byteorder",
@@ -2966,14 +2966,14 @@ dependencies = [
  "serde_derive",
  "tempfile",
  "wabt",
- "wasmer-clif-backend",
- "wasmer-llvm-backend",
+ "wasmer-clif-backend-fl",
+ "wasmer-llvm-backend-fl",
  "wasmer-runtime-core-fl",
- "wasmer-singlepass-backend",
+ "wasmer-singlepass-backend-fl",
 ]
 
 [[package]]
-name = "wasmer-singlepass-backend"
+name = "wasmer-singlepass-backend-fl"
 version = "0.17.0"
 dependencies = [
  "bincode",

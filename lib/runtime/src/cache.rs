@@ -12,8 +12,8 @@ use std::{
 };
 
 pub use super::Backend;
-use wasmer_runtime_core_fl::cache::Error as CacheError;
-pub use wasmer_runtime_core_fl::cache::{Artifact, WasmHash};
+use wasmer_runtime_core::cache::Error as CacheError;
+pub use wasmer_runtime_core::cache::{Artifact, WasmHash};
 
 /// A generic cache for storing and loading compiled wasm modules.
 ///
@@ -119,7 +119,7 @@ impl Cache for FileSystemCache {
 
         let serialized_cache = Artifact::deserialize(&mmap[..])?;
         unsafe {
-            wasmer_runtime_core_fl::load_cache_with(
+            wasmer_runtime_core::load_cache_with(
                 serialized_cache,
                 crate::compiler_for_backend(backend)
                     .ok_or_else(|| CacheError::UnsupportedBackend(backend.to_string().to_owned()))?

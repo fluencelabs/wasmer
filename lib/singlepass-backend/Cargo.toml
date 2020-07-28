@@ -1,5 +1,5 @@
 [package]
-name = "wasmer-singlepass-backend"
+name = "wasmer-singlepass-backend-fl"
 version = "0.17.0"
 repository = "https://github.com/wasmerio/wasmer"
 description = "Wasmer runtime single pass compiler backend"

@@ -1,5 +1,5 @@
 [package]
-name = "wasmer-llvm-backend"
+name = "wasmer-llvm-backend-fl"
 version = "0.17.0"
 description = "Wasmer runtime LLVM compiler backend"
 license = "MIT"

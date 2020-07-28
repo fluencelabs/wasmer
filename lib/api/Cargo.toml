@@ -18,16 +18,19 @@ wasmer-runtime-core = { version = "0.17.0", path = "../runtime-core", package = 
 path = "../singlepass-backend"
 version = "0.17.0"
 optional = true
+package = "wasmer-singlepass-backend-fl"
 
 [dependencies.wasmer-llvm-backend]
 path = "../llvm-backend"
 version = "0.17.0"
 optional = true
+package = "wasmer-llvm-backend-fl"
 
 [dependencies.wasmer-clif-backend]
 path = "../clif-backend"
 version = "0.17.0"
 optional = true
+package = "wasmer-clif-backend-fl"
 
 [features]
 # Note: we should have default backends depending on the architecture

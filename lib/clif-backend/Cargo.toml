@@ -1,5 +1,5 @@
 [package]
-name = "wasmer-clif-backend"
+name = "wasmer-clif-backend-fl"
 version = "0.17.0"
 description = "Wasmer runtime Cranelift compiler backend"
 license = "MIT"
