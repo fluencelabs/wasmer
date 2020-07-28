@@ -14,8 +14,8 @@ maintenance = { status = "experimental" }
 [dependencies]
 log = "0.4"
 minifb = "0.13"
-wasmer-wasi = { version = "0.17.0", path = "../wasi" }
-wasmer-runtime-core = { version = "0.17.0", path = "../runtime-core" }
+wasmer-wasi = { package = "wasmer-wasi-fl", version = "0.17.0", path = "../wasi" }
+wasmer-runtime-core = { version = "0.17.0", package = "wasmer-runtime-core-fl", path = "../runtime-core" }
 ref_thread_local = "0.0"
 serde = "1"
 typetag = "0.1"

@@ -94,25 +94,25 @@
 #[macro_use]
 extern crate serde_derive;
 
-pub use wasmer_runtime_core::backend::{ExceptionCode, Features};
-pub use wasmer_runtime_core::codegen::{MiddlewareChain, StreamingCompiler};
-pub use wasmer_runtime_core::export::Export;
-pub use wasmer_runtime_core::global::Global;
-pub use wasmer_runtime_core::import::{ImportObject, LikeNamespace};
-pub use wasmer_runtime_core::instance::{DynFunc, Instance};
-pub use wasmer_runtime_core::memory::ptr::{Array, Item, WasmPtr};
-pub use wasmer_runtime_core::memory::Memory;
-pub use wasmer_runtime_core::module::Module;
-pub use wasmer_runtime_core::table::Table;
-pub use wasmer_runtime_core::types::Value;
-pub use wasmer_runtime_core::vm::Ctx;
+pub use wasmer_runtime_core_fl::backend::{ExceptionCode, Features};
+pub use wasmer_runtime_core_fl::codegen::{MiddlewareChain, StreamingCompiler};
+pub use wasmer_runtime_core_fl::export::Export;
+pub use wasmer_runtime_core_fl::global::Global;
+pub use wasmer_runtime_core_fl::import::{ImportObject, LikeNamespace};
+pub use wasmer_runtime_core_fl::instance::{DynFunc, Instance};
+pub use wasmer_runtime_core_fl::memory::ptr::{Array, Item, WasmPtr};
+pub use wasmer_runtime_core_fl::memory::Memory;
+pub use wasmer_runtime_core_fl::module::Module;
+pub use wasmer_runtime_core_fl::table::Table;
+pub use wasmer_runtime_core_fl::types::Value;
+pub use wasmer_runtime_core_fl::vm::Ctx;
 
-pub use wasmer_runtime_core::Func;
-pub use wasmer_runtime_core::{compile_with, validate};
-pub use wasmer_runtime_core::{func, imports};
+pub use wasmer_runtime_core_fl::Func;
+pub use wasmer_runtime_core_fl::{compile_with, validate};
+pub use wasmer_runtime_core_fl::{func, imports};
 
 #[cfg(unix)]
-pub use wasmer_runtime_core::{
+pub use wasmer_runtime_core_fl::{
     fault::{pop_code_version, push_code_version},
     state::CodeVersion,
 };
@@ -120,14 +120,14 @@ pub use wasmer_runtime_core::{
 pub mod memory {
     //! The memory module contains the implementation data structures and helper functions used to
     //! manipulate and access wasm memory.
-    pub use wasmer_runtime_core::memory::{Atomically, Memory, MemoryView};
+    pub use wasmer_runtime_core_fl::memory::{Atomically, Memory, MemoryView};
 }
 
 pub mod wasm {
     //! Various types exposed by the Wasmer Runtime.
-    pub use wasmer_runtime_core::global::Global;
-    pub use wasmer_runtime_core::table::Table;
-    pub use wasmer_runtime_core::types::{
+    pub use wasmer_runtime_core_fl::global::Global;
+    pub use wasmer_runtime_core_fl::table::Table;
+    pub use wasmer_runtime_core_fl::types::{
         FuncSig, GlobalDescriptor, MemoryDescriptor, TableDescriptor, Type, Value,
     };
 }
@@ -135,23 +135,23 @@ pub mod wasm {
 pub mod error {
     //! The error module contains the data structures and helper functions used to implement errors that
     //! are produced and returned from the wasmer runtime.
-    pub use wasmer_runtime_core::cache::Error as CacheError;
-    pub use wasmer_runtime_core::error::*;
+    pub use wasmer_runtime_core_fl::cache::Error as CacheError;
+    pub use wasmer_runtime_core_fl::error::*;
 }
 
 pub mod units {
     //! Various unit types.
-    pub use wasmer_runtime_core::units::{Bytes, Pages};
+    pub use wasmer_runtime_core_fl::units::{Bytes, Pages};
 }
 
 pub mod types {
     //! Types used in the Wasm runtime and conversion functions.
-    pub use wasmer_runtime_core::types::*;
+    pub use wasmer_runtime_core_fl::types::*;
 }
 
 pub mod cache;
 
-pub use wasmer_runtime_core::backend::{Compiler, CompilerConfig};
+pub use wasmer_runtime_core_fl::backend::{Compiler, CompilerConfig};
 
 /// Enum used to select which compiler should be used to generate code.
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
@@ -256,7 +256,7 @@ impl std::str::FromStr for Backend {
     feature = "default-backend-llvm",
 ))]
 pub fn compile(wasm: &[u8]) -> error::CompileResult<Module> {
-    wasmer_runtime_core::compile_with(&wasm[..], &default_compiler())
+    wasmer_runtime_core_fl::compile_with(&wasm[..], &default_compiler())
 }
 
 /// The same as `compile` but takes a `CompilerConfig` for the purpose of
@@ -273,7 +273,7 @@ pub fn compile_with_config(
     wasm: &[u8],
     compiler_config: CompilerConfig,
 ) -> error::CompileResult<Module> {
-    wasmer_runtime_core::compile_with_config(&wasm[..], &default_compiler(), compiler_config)
+    wasmer_runtime_core_fl::compile_with_config(&wasm[..], &default_compiler(), compiler_config)
 }
 
 /// The same as `compile_with_config` but takes a `Compiler` for the purpose of
@@ -283,7 +283,7 @@ pub fn compile_with_config_with(
     compiler_config: CompilerConfig,
     compiler: &dyn Compiler,
 ) -> error::CompileResult<Module> {
-    wasmer_runtime_core::compile_with_config(&wasm[..], compiler, compiler_config)
+    wasmer_runtime_core_fl::compile_with_config(&wasm[..], compiler, compiler_config)
 }
 
 /// Compile and instantiate WebAssembly code without

@@ -1,5 +1,5 @@
 [package]
-name = "wasmer-runtime"
+name = "wasmer-runtime-fl"
 version = "0.17.0"
 description = "Wasmer runtime library"
 license = "MIT"
@@ -15,7 +15,7 @@ wasmer-singlepass-backend = { path = "../singlepass-backend", version = "0.17.0"
 lazy_static = "1.4"
 memmap = "0.7"
 
-[dependencies.wasmer-runtime-core]
+[dependencies.wasmer-runtime-core-fl]
 path = "../runtime-core"
 version = "0.17.0"
 
@@ -55,7 +55,7 @@ singlepass = ["wasmer-singlepass-backend"]
 default-backend-singlepass = ["singlepass"]
 default-backend-llvm = ["llvm"]
 default-backend-cranelift = ["cranelift"]
-deterministic-execution = ["wasmer-singlepass-backend/deterministic-execution", "wasmer-runtime-core/deterministic-execution"]
+deterministic-execution = ["wasmer-singlepass-backend/deterministic-execution", "wasmer-runtime-core-fl/deterministic-execution"]
 
 [[bench]]
 name = "nginx"

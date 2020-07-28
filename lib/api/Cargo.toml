@@ -12,7 +12,7 @@ license = "MIT"
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }
-wasmer-runtime-core = { version = "0.17.0", path = "../runtime-core" }
+wasmer-runtime-core = { version = "0.17.0", path = "../runtime-core", package = "wasmer-runtime-core-fl" }
 
 [dependencies.wasmer-singlepass-backend]
 path = "../singlepass-backend"

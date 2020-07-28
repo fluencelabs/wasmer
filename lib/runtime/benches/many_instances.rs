@@ -6,7 +6,7 @@ use wasmer_runtime::{
     cache::{Cache, FileSystemCache, WasmHash},
     compile, func, imports, instantiate, validate, Func,
 };
-use wasmer_runtime_core::vm::Ctx;
+use wasmer_runtime_core_fl::vm::Ctx;
 
 fn it_works(_ctx: &mut Ctx) -> i32 {
     5

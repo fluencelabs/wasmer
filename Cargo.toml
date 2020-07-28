@@ -30,8 +30,8 @@ structopt = "0.3"
 wabt = { version = "0.9.1", optional = true }
 wasmer = { path = "lib/api", default-features = false }
 wasmer-middleware-common = { path = "lib/middleware-common" }
-wasmer-runtime = { path = "lib/runtime", default-features = false }
-wasmer-runtime-core = { path = "lib/runtime-core" }
+wasmer-runtime = { path = "lib/runtime", package = "wasmer-runtime-fl", default-features = false }
+wasmer-runtime-core = { path = "lib/runtime-core", package = "wasmer-runtime-core-fl" }
 wasmer-kernel-loader = { path = "lib/kernel-loader", optional = true }
 
 # Backends
@@ -41,7 +41,7 @@ wasmer-llvm-backend = { path = "lib/llvm-backend", optional = true }
 
 # Frontends
 wasmer-emscripten = { path = "lib/emscripten" }
-wasmer-wasi = { path = "lib/wasi", optional = true }
+wasmer-wasi = { path = "lib/wasi", package = "wasmer-wasi-fl", optional = true }
 wasmer-wasi-experimental-io-devices = { path = "lib/wasi-experimental-io-devices", optional = true }
 
 [workspace]

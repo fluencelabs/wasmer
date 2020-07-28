@@ -9,8 +9,8 @@ publish = false
 cargo-fuzz = true
 
 [dependencies]
-wasmer-runtime = { path = "../lib/runtime" }
-wasmer-runtime-core = { path = "../lib/runtime-core" }
+wasmer-runtime-fl = { path = "../lib/runtime" }
+wasmer-runtime-core = { path = "../lib/runtime-core", package = "wasmer-runtime-core-fl" }
 wasmer = { path = "../" }
 wasmer-llvm-backend = { path = "../lib/llvm-backend" }
 wasmer-singlepass-backend = { path = "../lib/singlepass-backend" }
