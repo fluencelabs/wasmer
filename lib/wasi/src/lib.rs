@@ -57,7 +57,11 @@ pub fn generate_import_object(
     envs: Vec<Vec<u8>>,
     preopened_files: Vec<PathBuf>,
     mapped_dirs: Vec<(String, PathBuf)>,
-) -> ImportObject {
+) -> Result<ImportObject, String> {
+    // it is just for check that WasiFs could be created
+    #[allow(deprecated)]
+    let _ = WasiFs::new(&preopened_files, &mapped_dirs)?;
+
     let state_gen = move || {
         // TODO: look into removing all these unnecessary clones
         fn state_destructor(data: *mut c_void) {
@@ -71,7 +75,8 @@ pub fn generate_import_object(
         // this deprecation warning only applies to external callers
         #[allow(deprecated)]
         let state = Box::new(WasiState {
-            fs: WasiFs::new(&preopened_files, &mapped_dirs).expect("Could not create WASI FS"),
+            fs: WasiFs::new(&preopened_files, &mapped_dirs)
+                .expect("WasiFs's been already checked for creation"),
             args: args.clone(),
             envs: envs.clone(),
         });
@@ -82,7 +87,7 @@ pub fn generate_import_object(
         )
     };
 
-    generate_import_object_snapshot1_inner(state_gen)
+    Ok(generate_import_object_snapshot1_inner(state_gen))
 }
 
 /// Create an [`ImportObject`] with an existing [`WasiState`]. [`WasiState`]
@@ -124,7 +129,7 @@ pub fn generate_import_object_for_version(
     envs: Vec<Vec<u8>>,
     preopened_files: Vec<PathBuf>,
     mapped_dirs: Vec<(String, PathBuf)>,
-) -> ImportObject {
+) -> Result<ImportObject, String> {
     match version {
         WasiVersion::Snapshot0 => {
             generate_import_object_snapshot0(args, envs, preopened_files, mapped_dirs)
@@ -141,7 +146,11 @@ fn generate_import_object_snapshot0(
     envs: Vec<Vec<u8>>,
     preopened_files: Vec<PathBuf>,
     mapped_dirs: Vec<(String, PathBuf)>,
-) -> ImportObject {
+) -> Result<ImportObject, String> {
+    // it is just for check that WasiFs could be created
+    #[allow(deprecated)]
+    let _ = WasiFs::new(&preopened_files, &mapped_dirs)?;
+
     let state_gen = move || {
         // TODO: look into removing all these unnecessary clones
         fn state_destructor(data: *mut c_void) {
@@ -149,14 +158,15 @@ fn generate_import_object_snapshot0(
                 drop(Box::from_raw(data as *mut WasiState));
             }
         }
-        let preopened_files = preopened_files.clone();
-        let mapped_dirs = mapped_dirs.clone();
+        // let preopened_files = preopened_files.clone();
+        // let mapped_dirs = mapped_dirs.clone();
         //let wasi_builder = create_wasi_instance();
 
         // this deprecation warning only applies to external callers
         #[allow(deprecated)]
         let state = Box::new(WasiState {
-            fs: WasiFs::new(&preopened_files, &mapped_dirs).expect("Could not create WASI FS"),
+            fs: WasiFs::new(&preopened_files, &mapped_dirs)
+                .expect("it's been already checked that WasiFs can be created"),
             args: args.clone(),
             envs: envs.clone(),
         });
@@ -166,7 +176,7 @@ fn generate_import_object_snapshot0(
             state_destructor as fn(*mut c_void),
         )
     };
-    generate_import_object_snapshot0_inner(state_gen)
+    Ok(generate_import_object_snapshot0_inner(state_gen))
 }
 
 /// Combines a state generating function with the import list for legacy WASI

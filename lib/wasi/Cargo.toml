@@ -1,6 +1,6 @@
 [package]
 name = "wasmer-wasi-fl"
-version = "0.17.0"
+version = "0.17.1"
 description = "Wasmer runtime WASI implementation library"
 license = "MIT"
 authors = ["The Wasmer Engineering Team <engineering@wasmer.io>"]
