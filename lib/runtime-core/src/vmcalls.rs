@@ -37,6 +37,8 @@ pub unsafe extern "C" fn local_static_memory_grow(
         Err(_) => -1,
     };
 
+    println!("local static memory grow: delta {:?}, ret {}", delta, ret);
+
     ctx.internal.memory_base = (*local_memory).base;
     ctx.internal.memory_bound = (*local_memory).bound;
 
@@ -56,7 +58,10 @@ pub unsafe extern "C" fn local_static_memory_size(
     let local_memory = *ctx.internal.memories.add(memory_index.index());
     let memory = (*local_memory).memory as *const StaticMemory;
 
-    (*memory).size()
+    let memory_size = (*memory).size();
+    // println!("local static memory size: ret {:?}", memory_size);
+
+    memory_size
 }
 
 /// Increase the size of the dynamic local memory with offset `memory_index` by
@@ -82,6 +87,8 @@ pub unsafe extern "C" fn local_dynamic_memory_grow(
         Err(_) => -1,
     };
 
+    println!("local dynamic memory grow: delta {:?}, ret {}", delta, ret);
+
     ctx.internal.memory_base = (*local_memory).base;
     ctx.internal.memory_bound = (*local_memory).bound;
 
@@ -101,7 +108,11 @@ pub unsafe extern "C" fn local_dynamic_memory_size(
     let local_memory = *ctx.internal.memories.add(memory_index.index());
     let memory = (*local_memory).memory as *const DynamicMemory;
 
-    (*memory).size()
+    let memory_size = (*memory).size();
+
+    // println!("local dynamic memory size: ret {:?}", memory_size);
+
+    memory_size
 }
 
 // +*****************************+
@@ -156,7 +167,11 @@ pub unsafe extern "C" fn imported_static_memory_size(
         .add(import_memory_index.index());
     let memory = (*local_memory).memory as *const StaticMemory;
 
-    (*memory).size()
+    let memory_size = (*memory).size();
+
+    // println!("imported static memory size: ret {:?}", memory_size);
+
+    memory_size
 }
 
 /// Increase the size of the dynamic imported memory with offset `memory_index` by
@@ -201,7 +216,11 @@ pub unsafe extern "C" fn imported_dynamic_memory_size(
     let local_memory = *ctx.internal.imported_memories.add(memory_index.index());
     let memory = (*local_memory).memory as *const DynamicMemory;
 
-    (*memory).size()
+    let memory_size = (*memory).size();
+
+    // println!("imported dynamic memory size: ret {:?}", memory_size);
+
+    memory_size
 }
 
 // +*****************************+

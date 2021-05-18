@@ -35,6 +35,7 @@ use wasmparser::Type as WpType;
 
 static BACKEND_ID: &str = "cranelift";
 
+#[allow(dead_code)]
 pub struct CraneliftModuleCodeGenerator {
     isa: Option<Box<dyn isa::TargetIsa>>,
     signatures: Option<Arc<Map<SigIndex, FuncSig>>>,
